@@ -16,7 +16,7 @@
 
 # Fedora-side packaging release counter — bump when respinning the same
 # upstream tag (config tweak, dropped patch, rebuild, etc.).
-%define _pkgrel 1
+%define _pkgrel 2
 
 # Derived.
 %define _rpmver %{version}-%{release}
@@ -370,15 +370,11 @@ Requires:       %{name}-devel = %{_rpmver}
 %files
 
 %changelog
-* Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 7.0.2-cachyos1
+* Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 7.0.2-cachyos2
+- Drop bundled nvidia-open kernel module build; use akmod-nvidia (RPM Fusion) instead
 - Split version macros: upstream identifiers (_upstream_base/stable/rel)
   are now distinct from the Fedora-side _pkgrel counter
-
-* Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 7.0.2-cachyos1
-- Drop bundled nvidia-open kernel module build; use akmod-nvidia (RPM Fusion) instead
-* Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 7.0.2-cachyos1
 - Drop the PAHOLE_VARIABLE removal HACK patch; no longer applies cleanly
-* Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 7.0.2-cachyos1
 - Add ExclusiveArch x86_64 to match the spec's actual support surface
 * Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 7.0.2-cachyos1
 - Update to CachyOS 7.0.2-1
