@@ -29,7 +29,7 @@
 Name:           %{package_name}
 Summary:        Mesa 3D Graphics Library, git version
 Version:        %{version_string}
-Release:        0.43%{?gitrel}%{?dist}
+Release:        0.44%{?gitrel}%{?dist}
 
 License:        MIT
 URL:            http://www.mesa3d.org
@@ -43,7 +43,7 @@ BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  gettext
 BuildRequires:  kernel-headers
-BuildRequires:  pkgconfig(libdrm) >= 2.4.97
+BuildRequires:  pkgconfig(libdrm) >= 2.4.133
 BuildRequires:  pkgconfig(libunwind)
 BuildRequires:  pkgconfig(expat)
 BuildRequires:  pkgconfig(libpng)
@@ -440,6 +440,10 @@ popd
 %{_datadir}/vulkan/icd.d/intel_hasvk_icd.*.json
 
 %changelog
+* Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com>
+  Bump pkgconfig(libdrm) BuildRequires to >= 2.4.133 to match
+  upstream amdgpu driver requirement.
+
 * Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com>
   Restore i686 (32-bit) support for multilib builds:
   - Allow ExclusiveArch %{ix86} x86_64
