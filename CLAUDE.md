@@ -15,7 +15,7 @@ Each package lives in its own directory and is self-contained:
 
 There is **no shared tooling, no Makefile, no top-level build script**. Don't invent one.
 
-Packages currently tracked: `amneziawg-dkms`, `amneziawg-tools`, `cachyos-default-kernel`, `jetbrains-toolbox`, `kernel-cachyos`, `mesa-git`, `wooting-udev`, `zed`.
+Packages currently tracked: `amneziawg-dkms`, `amneziawg-tools`, `cachyos-default-kernel`, `jetbrains-toolbox`, `kernel-cachyos`, `mesa-git`, `wooting-udev`, `wootility`, `zed`.
 
 ## Building a package locally
 
@@ -37,12 +37,12 @@ Built RPMs land in `RPMS/<arch>/`; SRPMs in `SRPMS/`. Both are gitignored.
 
 Two distinct spec styles coexist — preserve the style of whichever package you're editing:
 
-1. **Binary repackagers** — `jetbrains-toolbox`, `zed`. Pull an upstream prebuilt tarball/`.deb`, unpack, and reinstall into the buildroot. These all set `%global debug_package %{nil}`, declare `ExclusiveArch: x86_64`, have an empty `%build`, and their `%install` is `install`/`cp` plus symlinks. Don't add compilation steps to these.
+1. **Binary repackagers** — `jetbrains-toolbox`, `wootility`, `zed`. Pull an upstream prebuilt tarball/`.deb`/AppImage, unpack, and reinstall into the buildroot. These all set `%global debug_package %{nil}`, declare `ExclusiveArch: x86_64`, have an empty `%build`, and their `%install` is `install`/`cp` plus symlinks. Don't add compilation steps to these.
 2. **Source builds** — `amneziawg-dkms`, `amneziawg-tools`, `mesa-git`, `kernel-cachyos`. Real `BuildRequires`, real compilation. The two `amneziawg-*` packages and `mesa-git` track an upstream **git commit** (not a release tag); see versioning below.
 
 Versioning idioms used by the auto-updater (preserve these exactly — the workflow's `sed` patterns depend on them):
 
-- Pinned upstream release: `Version: <semver>` (jetbrains-toolbox).
+- Pinned upstream release: `Version: <semver>` (jetbrains-toolbox, wootility).
 - Prerelease: `%global upstream_version` + `%global prerelease`; `Version: %{upstream_version}~%{prerelease}` (zed).
 - Git snapshot: `%global commit <sha>` + `%global commitdate <YYYYMMDD>`; `Version: 1.0.%{commitdate}git%{shortcommit}` (amneziawg-dkms, amneziawg-tools).
 - Mesa-git snapshot uses `%define commit` + `%define version_string` + `%global commit_date` and bumps the numeric `Release: 0.<N>%{?dist}` field on each update — `version_string` comes from the upstream `VERSION` file at that commit (with `-devel` stripped).
@@ -57,7 +57,7 @@ Runs daily at 12:00 UTC and on `workflow_dispatch`. Architecture to keep in mind
 - Each per-package commit is made locally; a final `git push` at the end pushes them all together. There is **no PR flow** — commits land directly on `main` as `github-actions[bot]`.
 - Commit message convention: `chore(<package>): update to <something>` (matches the manual commit history style — see `git log`).
 - Changelog entries are inserted with `sed -i "/^%changelog/a ..."` so the newest entry is always immediately after the `%changelog` line. The format is `* <date> Automated Update <github-actions@github.com> - <evr>` followed by a `- Update to ...` line. Mesa-git is the exception: it bumps `Release` but does not append a changelog entry.
-- Upstream version sources (memorize where to look when adding a package): GitHub Releases API (zed prereleases), GitHub Commits API (both amneziawg-*), JetBrains `data.services.jetbrains.com/products/releases?code=TBA` (jetbrains-toolbox), GitLab repo commits API + raw `VERSION` file at that commit (mesa-git).
+- Upstream version sources (memorize where to look when adding a package): GitHub Releases API (zed prereleases), GitHub Commits API (both amneziawg-*), JetBrains `data.services.jetbrains.com/products/releases?code=TBA` (jetbrains-toolbox), GitLab repo commits API + raw `VERSION` file at that commit (mesa-git), `api.wooting.io/public/wootility/download?os=linux` redirect Location header (wootility).
 
 When adding a new package to the workflow, follow the same three-step block pattern and grep/sed against the same fields the spec exposes — don't invent a new convention.
 
