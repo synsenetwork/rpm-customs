@@ -10,7 +10,7 @@
 
 Name:           wootility-beta
 Version:        %{upstream_version}~%{prerelease}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Beta channel of the Wooting keyboard configuration utility
 
 License:        LicenseRef-Wooting-EULA
@@ -37,12 +37,16 @@ chmod +x ./%{appimage}
 ./%{appimage} --appimage-extract wootility.desktop
 ./%{appimage} --appimage-extract usr/share/icons
 
-# Differentiate the beta from the stable: rewrite Exec to our wrapper,
-# point Icon at the renamed beta icon, append " Beta" to all Name= keys
-# (including locale variants), and rename the .desktop file itself.
-sed -i -E 's|^Exec=AppRun|Exec=env DESKTOPINTEGRATION=false /usr/bin/%{name}|' \
+# Differentiate the beta from the stable: rewrite Exec to our wrapper
+# (passing --class so the bundled Electron app sets WM_CLASS=WootilityBeta
+# and isn't grouped with a running stable Wootility), point Icon at the
+# renamed beta icon, set StartupWMClass to match the new WM_CLASS, append
+# " Beta" to all Name= keys (including locale variants), and rename the
+# .desktop file itself.
+sed -i -E 's|^Exec=AppRun|Exec=env DESKTOPINTEGRATION=false /usr/bin/%{name} --class=WootilityBeta|' \
     squashfs-root/wootility.desktop
 sed -i -E 's|^Icon=.*|Icon=%{name}|' squashfs-root/wootility.desktop
+sed -i -E 's|^StartupWMClass=.*|StartupWMClass=WootilityBeta|' squashfs-root/wootility.desktop
 sed -i -E 's|^(Name(\[[^]]+\])?=)(.*)$|\1\3 Beta|' squashfs-root/wootility.desktop
 mv squashfs-root/wootility.desktop squashfs-root/%{name}.desktop
 
@@ -79,5 +83,9 @@ cp -a squashfs-root/usr/share/icons/. %{buildroot}%{_datadir}/icons/
 %{_datadir}/icons/hicolor/*/apps/%{name}.*
 
 %changelog
+* Sat May 02 2026 Kristián Kekeš <gamerix2006@gmail.com> - 5.4.0~beta.0-2
+- Pass --class=WootilityBeta to the bundled Electron app and set the
+  matching StartupWMClass so window managers don't group the beta with
+  a running stable Wootility
 * Sat May 02 2026 Kristián Kekeš <gamerix2006@gmail.com> - 5.4.0~beta.0-1
 - Initial RPM package wrapping the upstream Wootility beta AppImage
