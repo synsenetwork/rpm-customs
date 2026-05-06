@@ -1,4 +1,4 @@
-%global upstream_version 1.1.3
+%global upstream_version 1.1.5
 %global prerelease     pre
 %global appid          dev.zed.Zed-Preview
 %global appdir         %{_libdir}/%{name}
@@ -60,6 +60,8 @@ install -m0644 zed-preview.app/share/icons/hicolor/1024x1024/apps/zed.png \
 %{_datadir}/icons/hicolor/1024x1024/apps/zed.png
 
 %changelog
+* Wed May 06 2026 Automated Update <github-actions@github.com> - 1.1.5~pre-1
+- Update to prerelease 1.1.5-pre
 * Mon May 04 2026 Automated Update <github-actions@github.com> - 1.1.3~pre-1
 - Update to prerelease 1.1.3-pre
 * Thu Apr 30 2026 Automated Update <github-actions@github.com> - 1.1.2~pre-1
