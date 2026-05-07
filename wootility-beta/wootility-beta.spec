@@ -3,7 +3,7 @@
 %global __strip /bin/true
 
 %global upstream_version 5.4.0
-%global prerelease       beta.0
+%global prerelease       beta.1
 
 %global appdir /opt/Wootility-Beta
 %global appimage Wootility-%{upstream_version}-%{prerelease}.AppImage
@@ -83,6 +83,8 @@ cp -a squashfs-root/usr/share/icons/. %{buildroot}%{_datadir}/icons/
 %{_datadir}/icons/hicolor/*/apps/%{name}.*
 
 %changelog
+* Thu May 07 2026 Automated Update <github-actions@github.com> - 5.4.0~beta.1-1
+- Update to beta 5.4.0-beta.1
 * Sat May 02 2026 Kristián Kekeš <gamerix2006@gmail.com> - 5.4.0~beta.0-2
 - Pass --class=WootilityBeta to the bundled Electron app and set the
   matching StartupWMClass so window managers don't group the beta with
