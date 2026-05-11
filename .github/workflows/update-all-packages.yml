@@ -434,6 +434,71 @@ jobs:
           git commit -m "chore(scx-manager): update to version ${{ steps.check_scx_manager.outputs.latest }}"
 
       # ============================================
+      # kernel-cachyos
+      # ============================================
+      - name: Check for new CachyOS kernel tag
+        id: check_kernel_cachyos
+        run: |
+          CURRENT_BASE=$(grep -oP '^%define _upstream_base\s+\K\S+' kernel-cachyos/kernel-cachyos.spec)
+          CURRENT_STABLE=$(grep -oP '^%define _upstream_stable\s+\K\d+' kernel-cachyos/kernel-cachyos.spec)
+          CURRENT_REL=$(grep -oP '^%define _upstream_rel\s+\K\d+' kernel-cachyos/kernel-cachyos.spec)
+          CURRENT_TAG="${CURRENT_BASE}.${CURRENT_STABLE}-${CURRENT_REL}"
+
+          # Pick the newest stable cachyos-X.Y.Z-N tag (skip -rcN).
+          LATEST_TAG=$(curl -fsSL 'https://api.github.com/repos/CachyOS/linux/git/matching-refs/tags/cachyos-' \
+              | jq -r '.[].ref' \
+              | sed 's|refs/tags/cachyos-||' \
+              | grep -vE -- '-rc[0-9]' \
+              | sort -V \
+              | tail -1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Failed to determine latest CachyOS kernel tag"
+            exit 1
+          fi
+
+          # Tag format: X.Y.Z-N
+          LATEST_VERSION="${LATEST_TAG%-*}"
+          LATEST_REL="${LATEST_TAG##*-}"
+          LATEST_BASE="${LATEST_VERSION%.*}"
+          LATEST_STABLE="${LATEST_VERSION##*.}"
+
+          echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "latest_base=$LATEST_BASE" >> $GITHUB_OUTPUT
+          echo "latest_stable=$LATEST_STABLE" >> $GITHUB_OUTPUT
+          echo "latest_rel=$LATEST_REL" >> $GITHUB_OUTPUT
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          if [ "$CURRENT_TAG" != "$LATEST_TAG" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update CachyOS kernel spec
+        if: steps.check_kernel_cachyos.outputs.update_needed == 'true'
+        run: |
+          BASE="${{ steps.check_kernel_cachyos.outputs.latest_base }}"
+          STABLE="${{ steps.check_kernel_cachyos.outputs.latest_stable }}"
+          REL="${{ steps.check_kernel_cachyos.outputs.latest_rel }}"
+          VERSION="${{ steps.check_kernel_cachyos.outputs.latest_version }}"
+          TAG="${{ steps.check_kernel_cachyos.outputs.latest_tag }}"
+          sed -i "s/^%define _upstream_base .*/%define _upstream_base   $BASE/" kernel-cachyos/kernel-cachyos.spec
+          sed -i "s/^%define _upstream_stable .*/%define _upstream_stable $STABLE/" kernel-cachyos/kernel-cachyos.spec
+          sed -i "s/^%define _upstream_rel .*/%define _upstream_rel    $REL/" kernel-cachyos/kernel-cachyos.spec
+          sed -i "s/^%define _pkgrel .*/%define _pkgrel 1/" kernel-cachyos/kernel-cachyos.spec
+          CURRENT_DATE=$(date '+%a %b %d %Y')
+          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - ${VERSION}-cachyos1"
+          sed -i "/^%changelog/a $CHANGELOG_ENTRY\n- Update to CachyOS $TAG" kernel-cachyos/kernel-cachyos.spec
+
+      - name: Commit CachyOS kernel changes
+        if: steps.check_kernel_cachyos.outputs.update_needed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add kernel-cachyos/kernel-cachyos.spec
+          git commit -m "chore(kernel-cachyos): update to CachyOS ${{ steps.check_kernel_cachyos.outputs.latest_tag }}"
+
+      # ============================================
       # Push all changes at once
       # ============================================
       - name: Push all changes
