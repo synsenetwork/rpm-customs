@@ -101,43 +101,6 @@ jobs:
           git commit -m "chore(jetbrains-toolbox): update to version ${{ steps.check_jetbrains_toolbox.outputs.latest }}"
 
       # ============================================
-      # Wootility
-      # ============================================
-      - name: Check for new Wootility version
-        id: check_wootility
-        run: |
-          CURRENT_VERSION=$(grep -oP '^Version:\s*\K[0-9.]+' wootility/wootility.spec)
-          LATEST_VERSION=$(curl -sI 'https://api.wooting.io/public/wootility/download?os=linux' | tr -d '\r' | grep -iE '^location:' | grep -oP 'Wootility-\K[0-9.]+(?=\.AppImage)')
-          if [ -z "$LATEST_VERSION" ]; then
-            echo "Failed to determine latest Wootility version"
-            exit 1
-          fi
-          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "latest=$LATEST_VERSION" >> $GITHUB_OUTPUT
-          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
-            echo "update_needed=true" >> $GITHUB_OUTPUT
-          else
-            echo "update_needed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Update Wootility spec
-        if: steps.check_wootility.outputs.update_needed == 'true'
-        run: |
-          LATEST_VERSION="${{ steps.check_wootility.outputs.latest }}"
-          sed -i "s/^Version:\s*.*/Version:        $LATEST_VERSION/" wootility/wootility.spec
-          CURRENT_DATE=$(date '+%a %b %d %Y')
-          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - $LATEST_VERSION-1"
-          sed -i "/^%changelog/a $CHANGELOG_ENTRY\n- Update to version $LATEST_VERSION" wootility/wootility.spec
-
-      - name: Commit Wootility changes
-        if: steps.check_wootility.outputs.update_needed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add wootility/wootility.spec
-          git commit -m "chore(wootility): update to version ${{ steps.check_wootility.outputs.latest }}"
-
-      # ============================================
       # Wootility Beta
       # ============================================
       - name: Check for new Wootility beta version
