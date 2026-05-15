@@ -428,8 +428,9 @@ jobs:
           NEW_BUMP=$((CURRENT_BUMP + 1))
           sed -i "s/^Release:\s\+0\.[0-9]\+\./Release:        0.$NEW_BUMP./" gamescope/gamescope.spec
           VERSION=$(grep -oP '^Version:\s*\K[0-9.]+' gamescope/gamescope.spec)
+          EPOCH=$(grep -oP '^Epoch:\s+\K[0-9]+' gamescope/gamescope.spec)
           CURRENT_DATE=$(date '+%a %b %d %Y')
-          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - ${VERSION}-0.${NEW_BUMP}.${DATE}git${SHORT}"
+          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - ${EPOCH}:${VERSION}-0.${NEW_BUMP}.${DATE}git${SHORT}"
           sed -i "/^%changelog/a $CHANGELOG_ENTRY\n- Update to git commit $SHORT" gamescope/gamescope.spec
 
       - name: Commit gamescope changes
