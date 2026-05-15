@@ -1,5 +1,5 @@
 Name:           scx-scheds
-Version:        1.1.0
+Version:        1.1.1
 Release:        1%{?dist}
 Summary:        sched_ext schedulers and support utilities
 
@@ -77,5 +77,7 @@ find target/release \
 %{_bindir}/*
 
 %changelog
+* Fri May 15 2026 Automated Update <github-actions@github.com> - 1.1.1-1
+- Update to version 1.1.1
 * Tue May 05 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.1.0-1
 - Initial package, adapted from CachyOS COPR (bieszczaders/kernel-cachyos-addons)
