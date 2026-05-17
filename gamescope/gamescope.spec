@@ -9,7 +9,7 @@
 
 Name:           gamescope
 Version:        3.16.23
-Release:        0.10.%{commitdate}git%{shortcommit}%{?dist}
+Release:        0.11.%{commitdate}git%{shortcommit}%{?dist}
 Epoch:          1
 Summary:        Micro-compositor for video games on Wayland (synse fork)
 
@@ -26,7 +26,6 @@ BuildRequires:  cmake
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  git-core
-BuildRequires:  google-benchmark-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXmu-devel
 BuildRequires:  meson >= 0.54.0
@@ -82,7 +81,6 @@ tar -xzf %{SOURCE1} --strip-components=1 -C subprojects/vkroots
 %build
 %meson \
     -Davif_screenshots=enabled \
-    -Dbenchmark=enabled \
     -Ddrm_backend=enabled \
     -Denable_gamescope=true \
     -Denable_gamescope_wsi_layer=true \
