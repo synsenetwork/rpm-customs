@@ -5,13 +5,13 @@
 %global vkroots_shortcommit %(c=%{vkroots_commit}; echo ${c:0:7})
 
 # Personal fork of gamescope tracked by commit (no upstream tag).
-%global commit f2ad3bc7c1247d57f3f8f0200ac0172088f8dc2b
+%global commit 388e15be2f4b243b77cff0fe63e41a0ec360d58f
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate 20260516
+%global commitdate 20260517
 
 Name:           gamescope
 Version:        3.16.23
-Release:        0.6.%{commitdate}git%{shortcommit}%{?dist}
+Release:        0.7.%{commitdate}git%{shortcommit}%{?dist}
 Epoch:          1
 Summary:        Micro-compositor for video games on Wayland (synse fork)
 
@@ -127,6 +127,8 @@ tar -xzf %{SOURCE2} --strip-components=1 -C subprojects/vkroots
 %{_datadir}/vulkan/implicit_layer.d/VkLayer_FROG_gamescope_wsi.*.json
 
 %changelog
+* Sun May 17 2026 Automated Update <github-actions@github.com> - 1:3.16.23-0.7.20260517git388e15b
+- Update to git commit 388e15b
 * Sat May 16 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:3.16.23-0.6.20260516gitf2ad3bc
 - Drop spirv-headers-devel BuildRequires and the matching %prep sed
   that rewrote the bundled SPIRV-Headers include path. The fork is
