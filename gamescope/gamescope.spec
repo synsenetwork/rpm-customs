@@ -9,7 +9,7 @@
 
 Name:           gamescope
 Version:        3.16.23
-Release:        0.7.%{commitdate}git%{shortcommit}%{?dist}
+Release:        0.8.%{commitdate}git%{shortcommit}%{?dist}
 Epoch:          1
 Summary:        Micro-compositor for video games on Wayland (synse fork)
 
@@ -26,7 +26,6 @@ BuildRequires:  cmake
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  git-core
-BuildRequires:  glm-devel
 BuildRequires:  google-benchmark-devel
 BuildRequires:  libXcursor-devel
 BuildRequires:  libXmu-devel
@@ -60,17 +59,6 @@ BuildRequires:  pkgconfig(xrender)
 BuildRequires:  pkgconfig(xres)
 BuildRequires:  pkgconfig(xtst)
 BuildRequires:  pkgconfig(xxf86vm)
-# Enforce the the minimum EVR to contain fixes for all of:
-# CVE-2021-28021 CVE-2021-42715 CVE-2021-42716 CVE-2022-28041 CVE-2023-43898
-# CVE-2023-45661 CVE-2023-45662 CVE-2023-45663 CVE-2023-45664 CVE-2023-45666
-# CVE-2023-45667, upstream issues #1860, #1861
-BuildRequires:  stb_image-devel >= 2.30^20251025gitf1c79c0-2
-# Header-only library: -static is for tracking per guidelines
-BuildRequires:  stb_image-static
-BuildRequires:  stb_image_resize-devel
-BuildRequires:  stb_image_resize-static
-BuildRequires:  stb_image_write-devel
-BuildRequires:  stb_image_write-static
 BuildRequires:  /usr/bin/glslangValidator
 
 Provides:       bundled(vkroots) = 0^20240429git5106d8a
@@ -123,6 +111,11 @@ tar -xzf %{SOURCE1} --strip-components=1 -C subprojects/vkroots
 %{_datadir}/vulkan/implicit_layer.d/VkLayer_FROG_gamescope_wsi.*.json
 
 %changelog
+* Sun May 17 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:3.16.23-0.8.20260517git388e15b
+- Drop glm-devel and the six stb_image* BuildRequires — the hard fork
+  now uses bundled headers for both glm and stb, so /usr/include/stb_*.h
+  and the system glm headers are no longer read by the build.
+
 * Sun May 17 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:3.16.23-0.7.20260517git388e15b
 - Update to git commit 388e15b (Bump wlroots to v0.20)
 - Drop the reshade Source and prep step — the hard fork removed reshade
