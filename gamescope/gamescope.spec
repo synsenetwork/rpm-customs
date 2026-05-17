@@ -11,7 +11,7 @@
 
 Name:           gamescope
 Version:        3.16.23
-Release:        0.4.%{commitdate}git%{shortcommit}%{?dist}
+Release:        0.5.%{commitdate}git%{shortcommit}%{?dist}
 Epoch:          1
 Summary:        Micro-compositor for video games on Wayland (synse fork)
 
@@ -22,18 +22,8 @@ URL:            https://github.com/synsejse/gamescope-synse
 ExcludeArch:    ppc64le
 
 Source0:        %{url}/archive/%{commit}/gamescope-synse-%{shortcommit}.tar.gz
-# Create stb.pc to satisfy dependency('stb')
-Source1:        stb.pc
-Source2:        https://github.com/misyltoad/reshade/archive/%{reshade_commit}/reshade-%{reshade_shortcommit}.tar.gz
-Source3:        https://github.com/misyltoad/vkroots/archive/%{vkroots_commit}/vkroots-%{vkroots_shortcommit}.tar.gz
-
-# https://github.com/misyltoad/reshade/pull/1:
-Patch:          0001-cstdint.patch
-# Allow to use system wlroots
-# We use/package rest from the forks, I've tried to verify that wlroots match relevant commits
-# We'll hold on rebases of gamescope if tags diverge in the future
-Patch:          Allow-to-use-system-wlroots.patch
-Patch:          Use-system-stb-glm.patch
+Source1:        https://github.com/misyltoad/reshade/archive/%{reshade_commit}/reshade-%{reshade_shortcommit}.tar.gz
+Source2:        https://github.com/misyltoad/vkroots/archive/%{vkroots_commit}/vkroots-%{vkroots_shortcommit}.tar.gz
 
 BuildRequires:  cmake
 BuildRequires:  gcc
@@ -101,21 +91,15 @@ This package is built from a personal fork at %{url}.
 
 %prep
 %autosetup -p1 -N -n gamescope-synse-%{commit}
-# Install stub pkgconfig file
-mkdir -p pkgconfig
-cp %{SOURCE1} pkgconfig/stb.pc
 
 # Replace spirv-headers include with the system directory
 sed -i 's^../thirdparty/SPIRV-Headers/include/spirv/^/usr/include/spirv/^' src/meson.build
 
 # Push in reshade and vkroots from sources instead of submodule
-tar -xzf %{SOURCE2} --strip-components=1 -C src/reshade
-tar -xzf %{SOURCE3} --strip-components=1 -C subprojects/vkroots
-
-%autopatch -p1
+tar -xzf %{SOURCE1} --strip-components=1 -C src/reshade
+tar -xzf %{SOURCE2} --strip-components=1 -C subprojects/vkroots
 
 %build
-export PKG_CONFIG_PATH=pkgconfig
 %meson \
     -Davif_screenshots=enabled \
     -Dbenchmark=enabled \
@@ -147,6 +131,14 @@ export PKG_CONFIG_PATH=pkgconfig
 %{_datadir}/vulkan/implicit_layer.d/VkLayer_FROG_gamescope_wsi.*.json
 
 %changelog
+* Sat May 16 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:3.16.23-0.5.20260516gitf2ad3bc
+- Drop the three Fedora patches (Allow-to-use-system-wlroots,
+  Use-system-stb-glm, reshade 0001-cstdint) and the stb.pc shim so the
+  fork's source is built as-is. Requires those changes to be merged in
+  synsejse/gamescope-synse master itself, otherwise meson setup will
+  fail on the force_fallback_for guard and the subproject('glm'/'stb')
+  calls.
+
 * Sat May 16 2026 Automated Update <github-actions@github.com> - 1:3.16.23-0.4.20260516gitf2ad3bc
 - Update to git commit f2ad3bc
 * Sat May 16 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:3.16.23-0.3.20260428git6a9097f
