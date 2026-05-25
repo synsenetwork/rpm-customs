@@ -9,7 +9,7 @@
 
 Name:           claude-desktop
 Version:        %{claude_version}
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        Claude Desktop for Linux
 License:        LicenseRef-Anthropic
 URL:            https://claude.com/download/
@@ -64,13 +64,10 @@ icotool -x claude.ico
 asar extract lib/net45/resources/app.asar app.asar.contents
 cp -r lib/net45/resources/app.asar.unpacked .
 
-# copy resources into asar contents
-mkdir -p app.asar.contents/resources/i18n
-cp lib/net45/resources/Tray* app.asar.contents/resources/
-cp lib/net45/resources/*.json app.asar.contents/resources/i18n/
-cp -r lib/net45/resources/fonts app.asar.contents/resources/ 2>/dev/null || :
-cp lib/net45/resources/*.png   app.asar.contents/resources/ 2>/dev/null || :
-cp lib/net45/resources/*.clod  app.asar.contents/resources/ 2>/dev/null || :
+# External resources (Tray*, i18n, ion-dist, fonts, *.png) are NOT packed
+# into the asar — the bundle's ryt() helper returns process.resourcesPath
+# (Electron's outer resources/ dir) when app.isPackaged is true. They are
+# installed alongside app.asar in %install instead.
 
 # native module stub (the Windows native .node binary is unusable on Linux)
 mkdir -p app.asar.contents/node_modules/@ant/claude-native
@@ -122,6 +119,11 @@ module.exports = {
 STUB
 
 # --- sed patches on index.js ---------------------------------------------
+# Patterns use captured groups for short minified identifiers (parameter
+# names, variable names) because those rename across Claude releases.
+# Verified against 1.8555.2 — three of the four reference-spec sed lines
+# would have been no-ops with the upstream-hardcoded identifiers (e, Ln,
+# Jr); the bundle now uses A, mo, ui at those sites.
 _idx=app.asar.contents/.vite/build/index.js
 
 # native window decorations
@@ -129,13 +131,13 @@ sed -i 's/titleBarStyle:"hidden"/titleBarStyle:"default"/g'      "$_idx"
 sed -i 's/titleBarStyle:"hiddenInset"/titleBarStyle:"default"/g' "$_idx"
 
 # Linux platform detection for Claude Code
-sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' "$_idx"
+sed -i -E 's/if\(process\.platform==="darwin"\)return ([a-zA-Z_$]+)==="arm64"\?"darwin-arm64":"darwin-x64";if\(process\.platform==="win32"\)return \1==="arm64"\?"win32-arm64":"win32-x64";throw new Error/if(process.platform==="darwin")return \1==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return \1==="arm64"?"win32-arm64":"win32-x64";if(process.platform==="linux")return \1==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' "$_idx"
 
 # file:// origin validation
-sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
+sed -i -E 's/([a-zA-Z_$]+)\.protocol==="file:"&&[a-zA-Z_$]+\.app\.isPackaged===!0/\1.protocol==="file:"/g' "$_idx"
 
 # quit on window close when tray is disabled (upstream only checks win32)
-sed -i 's/if(Ln&&!Jr("menuBarEnabled"))/if((Ln||process.platform==="linux")\&\&!Jr("menuBarEnabled"))/' "$_idx"
+sed -i -E 's/if\(([a-zA-Z_$]+)&&!([a-zA-Z_$]+)\("menuBarEnabled"\)\)/if((\1||process.platform==="linux")\&\&!\2("menuBarEnabled"))/' "$_idx"
 
 # repack
 asar pack app.asar.contents app.asar
@@ -147,6 +149,7 @@ export PATH="%{_builddir}/_tools/node_modules/.bin:$PATH"
 
 _elecdir=%{_builddir}/_tools/node_modules/electron/dist
 _dest=%{buildroot}%{_libdir}/%{name}
+_resdir="$_dest"/electron/resources
 
 # --- electron runtime ----------------------------------------------------
 mkdir -p "$_dest"/electron
@@ -155,28 +158,51 @@ cp -r "$_elecdir"/* "$_dest"/electron/
 find "$_dest"/electron/locales -type f ! -name 'en-US.pak' -delete
 # remove chromium license blob (~15 MB)
 rm -f "$_dest"/electron/LICENSES.chromium.html
+# drop Electron's default welcome-screen asar so it doesn't shadow ours
+rm -f "$_resdir"/default_app.asar
 
-# --- app.asar ------------------------------------------------------------
-install -Dm644 %{_builddir}/app.asar "$_dest"/app.asar
-
-# --- app.asar.unpacked (from installer, with native stub overlay) --------
-cp -r %{_builddir}/app.asar.unpacked "$_dest"/
-mkdir -p "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native
+# --- app.asar + app.asar.unpacked (canonical Electron layout) ------------
+# Electron's main process auto-loads ./resources/app.asar when no path arg
+# is passed; that path also makes process.resourcesPath resolve to
+# ./resources/, which is where the bundle's ryt() looks for Tray icons,
+# i18n JSON, ion-dist, fonts, etc.
+install -Dm644 %{_builddir}/app.asar "$_resdir"/app.asar
+cp -r %{_builddir}/app.asar.unpacked "$_resdir"/
+# native stub overlay so the unpacked @ant/claude-native is the Linux
+# stub rather than the Windows .node binary
+mkdir -p "$_resdir"/app.asar.unpacked/node_modules/@ant/claude-native
 cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
-   "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/index.js
-# remove Windows .node binary
-rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
+   "$_resdir"/app.asar.unpacked/node_modules/@ant/claude-native/index.js
+rm -f "$_resdir"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
+
+# --- external resources at process.resourcesPath ------------------------
+# Tray icons, i18n JSON, ion-dist app, fonts, screen-capture PNGs. These
+# live OUTSIDE the asar because ryt() returns process.resourcesPath.
+_src=%{_builddir}/lib/net45/resources
+cp "$_src"/Tray*.png "$_src"/Tray*.ico "$_resdir"/ 2>/dev/null || :
+mkdir -p "$_resdir"/i18n
+cp "$_src"/*.json "$_resdir"/i18n/ 2>/dev/null || :
+[ -d "$_src"/fonts ]    && cp -r "$_src"/fonts    "$_resdir"/
+[ -d "$_src"/ion-dist ] && cp -r "$_src"/ion-dist "$_resdir"/
+cp "$_src"/claude-screen*.png "$_resdir"/ 2>/dev/null || :
 
 # --- claude-ssh binaries (SSH remote feature) ----------------------------
-install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64
-install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64
-install -Dm644 %{_builddir}/lib/net45/resources/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt
+# Anthropic ships this subdir intermittently — present 1.1.3770-1.1.x,
+# absent by 1.8555.x. Skip when missing rather than fail the build.
+_sshsrc="$_src"/claude-ssh
+if [ -d "$_sshsrc" ]; then
+    [ -f "$_sshsrc/claude-ssh-linux-arm64" ] && install -Dm755 "$_sshsrc/claude-ssh-linux-arm64" "$_resdir"/claude-ssh/claude-ssh-linux-arm64
+    [ -f "$_sshsrc/claude-ssh-linux-amd64" ] && install -Dm755 "$_sshsrc/claude-ssh-linux-amd64" "$_resdir"/claude-ssh/claude-ssh-linux-amd64
+    [ -f "$_sshsrc/version.txt" ]            && install -Dm644 "$_sshsrc/version.txt"            "$_resdir"/claude-ssh/version.txt
+fi
 
 # --- launcher script -----------------------------------------------------
+# No path arg — Electron auto-discovers resources/app.asar next to its
+# executable.
 mkdir -p %{buildroot}%{_bindir}
 cat > %{buildroot}%{_bindir}/claude-desktop << 'LAUNCHER'
 #!/bin/bash
-exec %{_libdir}/claude-desktop/electron/electron %{_libdir}/claude-desktop/app.asar "$@"
+exec %{_libdir}/claude-desktop/electron/electron "$@"
 LAUNCHER
 chmod 0755 %{buildroot}%{_bindir}/claude-desktop
 
@@ -224,6 +250,25 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Mon May 25 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.8555.2-3
+- Verified the spec by actually unpacking the 1.8555.2 .nupkg and
+  walking each step. Three of the four reference-spec sed lines turned
+  out to be no-ops against current bundles because the minified
+  identifiers renamed (e->A, Ln->mo, Jr->ui); rewrote them with
+  capturing groups so they survive future renames.
+- Stop packing Tray icons / i18n JSON / fonts into the asar — the
+  bundle's ryt() helper resolves these via process.resourcesPath, so
+  they must live alongside app.asar in Electron's resources/ dir, not
+  inside the asar.
+- Ship the previously-missed lib/net45/resources/ion-dist/ payload at
+  process.resourcesPath/ion-dist (new in 1.x, not in 1.1.x).
+- Move app.asar + app.asar.unpacked into %{_libdir}/claude-desktop/
+  electron/resources/ to follow Electron's canonical app layout, drop
+  the default_app.asar welcome screen, and simplify the launcher to
+  `exec electron` (Electron auto-discovers resources/app.asar).
+- Make the claude-ssh install block tolerant of the subdir being
+  absent — gone from .nupkg by 1.8555.x.
+
 * Mon May 25 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.8555.2-1
 - Initial RPM package, adapted from christian-korneck/claude-desktop-rpm.
   Downloads the .nupkg directly from Anthropic's Squirrel feed instead
