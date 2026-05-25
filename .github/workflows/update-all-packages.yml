@@ -397,6 +397,46 @@ jobs:
           git commit -m "chore(scx-manager): update to version ${{ steps.check_scx_manager.outputs.latest }}"
 
       # ============================================
+      # claude-desktop
+      # ============================================
+      - name: Check for new Claude Desktop version
+        id: check_claude_desktop
+        run: |
+          CURRENT_VERSION=$(grep -oP '^%global claude_version \K\S+' claude-desktop/claude-desktop.spec)
+          LATEST_VERSION=$(curl -fsSL 'https://downloads.claude.ai/releases/win32/arm64/RELEASES' \
+              | grep -oE 'AnthropicClaude-[0-9.]+-full\.nupkg' \
+              | sed -E 's/AnthropicClaude-([0-9.]+)-full\.nupkg/\1/' \
+              | sort -V | tail -1)
+          if [ -z "$LATEST_VERSION" ]; then
+            echo "Failed to determine latest Claude Desktop version"
+            exit 1
+          fi
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "latest=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Claude Desktop spec
+        if: steps.check_claude_desktop.outputs.update_needed == 'true'
+        run: |
+          LATEST_VERSION="${{ steps.check_claude_desktop.outputs.latest }}"
+          sed -i "s/^%global claude_version .*/%global claude_version $LATEST_VERSION/" claude-desktop/claude-desktop.spec
+          CURRENT_DATE=$(date '+%a %b %d %Y')
+          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - $LATEST_VERSION-1"
+          sed -i "/^%changelog/a $CHANGELOG_ENTRY\n- Update to Claude Desktop $LATEST_VERSION" claude-desktop/claude-desktop.spec
+
+      - name: Commit Claude Desktop changes
+        if: steps.check_claude_desktop.outputs.update_needed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add claude-desktop/claude-desktop.spec
+          git commit -m "chore(claude-desktop): update to ${{ steps.check_claude_desktop.outputs.latest }}"
+
+      # ============================================
       # kernel-cachyos
       # ============================================
       - name: Check for new CachyOS kernel tag
