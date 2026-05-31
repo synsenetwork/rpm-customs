@@ -3,7 +3,7 @@
 %global debug_package %{nil}
 
 Name:           scx-synse-manager
-Version:        0.1.4
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        GTK4 / libadwaita GUI for managing sched_ext schedulers via scx_loader
 
@@ -56,19 +56,11 @@ export CARGO_NET_OFFLINE=true
 %doc README.md
 %{_bindir}/scx-synse-manager
 %{_libexecdir}/scx-synse-helper
-%{_datadir}/applications/org.cachyos.scx-synse-manager.desktop
-%{_datadir}/metainfo/org.cachyos.scx-synse-manager.metainfo.xml
-%{_datadir}/icons/hicolor/scalable/apps/org.cachyos.scx-synse-manager.svg
-%{_datadir}/polkit-1/actions/org.cachyos.scx-synse-manager.policy
+%{_datadir}/applications/com.synsenetwork.scx-synse-manager.desktop
+%{_datadir}/metainfo/com.synsenetwork.scx-synse-manager.metainfo.xml
+%{_datadir}/icons/hicolor/scalable/apps/com.synsenetwork.scx-synse-manager.svg
+%{_datadir}/polkit-1/actions/com.synsenetwork.scx-synse-manager.policy
 
 %changelog
-* Sun May 31 2026 Kristián Kekeš <gamerix2006@gmail.com> - 0.1.4-1
-- Update to 0.1.4 (contextual Apply/Turn off button; smaller window)
-* Sun May 31 2026 Kristián Kekeš <gamerix2006@gmail.com> - 0.1.3-1
-- Update to 0.1.3 (fix: give the window its app icon)
-* Sun May 31 2026 Kristián Kekeš <gamerix2006@gmail.com> - 0.1.2-1
-- Update to 0.1.2 (fix: show canonical scheduler name from scx_loader)
-* Sun May 31 2026 Kristián Kekeš <gamerix2006@gmail.com> - 0.1.1-1
-- Update to 0.1.1 (fix: run the privileged helper by absolute path)
-* Sun May 31 2026 Kristián Kekeš <gamerix2006@gmail.com> - 0.1.0-1
-- Initial package
+* Sun May 31 2026 Kristián Kekeš <gamerix2006@gmail.com> - 0.2.0-1
+- Initial package (app id com.synsenetwork.scx-synse-manager)
