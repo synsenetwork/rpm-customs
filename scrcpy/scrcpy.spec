@@ -62,7 +62,7 @@ require Java and the Android SDK in the buildroot.
 %{_mandir}/man1/scrcpy.1*
 
 %changelog
-* Sat Sep 06 2026 Kristián Kekeš <gamerix2006@gmail.com> - 4.0-1
+* Mon Jun 01 2026 Kristián Kekeš <gamerix2006@gmail.com> - 4.0-1
 - Initial RPM package, built from the upstream meson tree with the
   prebuilt server JAR from the matching release (no Java/Android SDK
   in the buildroot)
