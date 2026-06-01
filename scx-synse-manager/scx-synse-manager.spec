@@ -3,7 +3,7 @@
 %global debug_package %{nil}
 
 Name:           scx-synse-manager
-Version:        0.2.2
+Version:        0.2.3
 Release:        1%{?dist}
 Summary:        GTK4 / libadwaita GUI for managing sched_ext schedulers via scx_loader
 
