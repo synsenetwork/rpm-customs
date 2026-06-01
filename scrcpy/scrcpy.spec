@@ -1,6 +1,6 @@
 Name:           scrcpy
 Version:        4.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Display and control Android devices over USB or TCP/IP
 
 License:        Apache-2.0
@@ -57,11 +57,16 @@ require Java and the Android SDK in the buildroot.
 %{_datadir}/bash-completion/completions/scrcpy
 %{_datadir}/zsh/site-functions/_scrcpy
 %{_datadir}/icons/hicolor/256x256/apps/scrcpy.png
+%{_datadir}/icons/hicolor/256x256/apps/disconnected.png
 %{_datadir}/applications/scrcpy.desktop
 %{_datadir}/applications/scrcpy-console.desktop
 %{_mandir}/man1/scrcpy.1*
 
 %changelog
+* Mon Jun 01 2026 Kristián Kekeš <gamerix2006@gmail.com> - 4.0-2
+- Add the disconnected.png icon to %files (also installed by meson
+  alongside scrcpy.png; check-files flagged it as unpackaged)
+
 * Mon Jun 01 2026 Kristián Kekeš <gamerix2006@gmail.com> - 4.0-1
 - Initial RPM package, built from the upstream meson tree with the
   prebuilt server JAR from the matching release (no Java/Android SDK
