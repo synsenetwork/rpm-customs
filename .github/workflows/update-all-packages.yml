@@ -475,6 +475,46 @@ jobs:
           git commit -m "chore(scx-synse-manager): update to version ${{ steps.check_scx_synse_manager.outputs.latest }}"
 
       # ============================================
+      # synse-settings (CachyOS-settings fork)
+      # ============================================
+      - name: Check for new synse-settings version
+        id: check_synse_settings
+        run: |
+          CURRENT_COMMIT=$(grep -oP '^%global commit \K[a-f0-9]+' synse-settings/synse-settings.spec)
+          LATEST_COMMIT=$(curl -s https://api.github.com/repos/synsejse/synse-settings/commits | jq -r '.[0].sha')
+          LATEST_SHORT=$(echo $LATEST_COMMIT | cut -c1-7)
+          COMMIT_DATE=$(date '+%Y%m%d')
+          echo "current=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
+          echo "latest=$LATEST_COMMIT" >> $GITHUB_OUTPUT
+          echo "short=$LATEST_SHORT" >> $GITHUB_OUTPUT
+          echo "date=$COMMIT_DATE" >> $GITHUB_OUTPUT
+          if [ "$CURRENT_COMMIT" != "$LATEST_COMMIT" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update synse-settings spec
+        if: steps.check_synse_settings.outputs.update_needed == 'true'
+        run: |
+          COMMIT="${{ steps.check_synse_settings.outputs.latest }}"
+          SHORT="${{ steps.check_synse_settings.outputs.short }}"
+          DATE="${{ steps.check_synse_settings.outputs.date }}"
+          sed -i "s/^%global commit .*/%global commit $COMMIT/" synse-settings/synse-settings.spec
+          sed -i "s/^%global commitdate .*/%global commitdate $DATE/" synse-settings/synse-settings.spec
+          CURRENT_DATE=$(date '+%a %b %d %Y')
+          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - 1.0.${DATE}git${SHORT}-1"
+          sed -i "/^%changelog/a $CHANGELOG_ENTRY\n- Update to git commit $SHORT" synse-settings/synse-settings.spec
+
+      - name: Commit synse-settings changes
+        if: steps.check_synse_settings.outputs.update_needed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add synse-settings/synse-settings.spec
+          git commit -m "chore(synse-settings): update to git commit ${{ steps.check_synse_settings.outputs.short }}"
+
+      # ============================================
       # Push all changes at once
       # ============================================
       - name: Push all changes
