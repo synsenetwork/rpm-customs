@@ -443,7 +443,7 @@ jobs:
         id: check_scx_synse_manager
         run: |
           CURRENT_VERSION=$(grep -oP '^Version:\s*\K[0-9.]+' scx-synse-manager/scx-synse-manager.spec)
-          TAG_NAME=$(curl -fsSL https://api.github.com/repos/synsejse/scx-synse-manager/tags | jq -r '.[0].name')
+          TAG_NAME=$(curl -fsSL https://api.github.com/repos/synsenetwork/scx-synse-manager/tags | jq -r '.[0].name')
           if [ -z "$TAG_NAME" ] || [ "$TAG_NAME" = "null" ]; then
             echo "Failed to determine latest scx-synse-manager tag"
             exit 1
@@ -481,7 +481,7 @@ jobs:
         id: check_synse_settings
         run: |
           CURRENT_COMMIT=$(grep -oP '^%global commit \K[a-f0-9]+' synse-settings/synse-settings.spec)
-          LATEST_COMMIT=$(curl -s https://api.github.com/repos/synsejse/synse-settings/commits | jq -r '.[0].sha')
+          LATEST_COMMIT=$(curl -s https://api.github.com/repos/synsenetwork/synse-settings/commits | jq -r '.[0].sha')
           LATEST_SHORT=$(echo $LATEST_COMMIT | cut -c1-7)
           COMMIT_DATE=$(date '+%Y%m%d')
           echo "current=$CURRENT_COMMIT" >> $GITHUB_OUTPUT

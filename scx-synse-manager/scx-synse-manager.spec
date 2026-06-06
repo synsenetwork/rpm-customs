@@ -8,7 +8,7 @@ Release:        1%{?dist}
 Summary:        GTK4 / libadwaita GUI for managing sched_ext schedulers via scx_loader
 
 License:        GPL-2.0-or-later
-URL:            https://github.com/synsejse/scx-synse-manager
+URL:            https://github.com/synsenetwork/scx-synse-manager
 Source0:        %{url}/archive/refs/tags/v%{version}.tar.gz#/scx-synse-manager-%{version}.tar.gz
 
 ExclusiveArch:  x86_64 aarch64

@@ -4,7 +4,7 @@ Release:        1%{?dist}
 Summary:        udev rules granting user access to Wooting keyboards
 
 License:        MIT
-URL:            https://github.com/synsejse/rpm-customs
+URL:            https://github.com/synsenetwork/rpm-customs
 BuildArch:      noarch
 
 Source0:        70-wooting.rules

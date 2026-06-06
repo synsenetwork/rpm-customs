@@ -8,7 +8,7 @@ Release:        1%{?dist}
 Summary:        Personal CachyOS-settings fork: system tuning configs for Fedora (AMD-focused)
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/synsejse/synse-settings
+URL:            https://github.com/synsenetwork/synse-settings
 Source0:        %{url}/archive/%{commit}/synse-settings-%{shortcommit}.tar.gz
 
 BuildArch:      noarch
