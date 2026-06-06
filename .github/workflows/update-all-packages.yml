@@ -480,8 +480,12 @@ jobs:
       - name: Check for new synse-settings version
         id: check_synse_settings
         run: |
-          CURRENT_COMMIT=$(grep -oP '^%global commit \K[a-f0-9]+' synse-settings/synse-settings.spec)
-          LATEST_COMMIT=$(curl -s https://api.github.com/repos/synsenetwork/synse-settings/commits | jq -r '.[0].sha')
+          CURRENT_COMMIT=$(grep -oP '^%global commit\s+\K[a-f0-9]+' synse-settings/synse-settings.spec)
+          LATEST_COMMIT=$(curl -fsSL https://api.github.com/repos/synsenetwork/synse-settings/commits | jq -r '.[0].sha')
+          if [ -z "$LATEST_COMMIT" ] || [ "$LATEST_COMMIT" = "null" ]; then
+            echo "Failed to determine latest synse-settings commit"
+            exit 1
+          fi
           LATEST_SHORT=$(echo $LATEST_COMMIT | cut -c1-7)
           COMMIT_DATE=$(date '+%Y%m%d')
           echo "current=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
