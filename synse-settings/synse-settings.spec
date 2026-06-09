@@ -1,4 +1,4 @@
-%global commit      79e615e0cbc8ca97c3e591cf1f3be44afadfb819
+%global commit      f0069800c27812448953f12bb51df3e65283f19f
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 %global commitdate  20260606
 
@@ -49,7 +49,8 @@ cp -a etc usr %{buildroot}/
 %{_prefix}/lib/udev/rules.d/*
 
 %changelog
-* Tue Jun 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260609git79e615e-1
+* Tue Jun 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260609gitf006980-1
+- Move RAPL permissions to tmpfiles.conf
 - Remove X11/Xorg input configuration (Wayland-only system assumption)
 - Drop legacy xorg.conf.d touchpad InputClass rules
 - Clean packaging metadata to reflect Wayland-native setup
