@@ -1,4 +1,4 @@
-%global commit      bc5d0bc4e7ef817dbf8a0538db4310c0a10286c2
+%global commit      79e615e0cbc8ca97c3e591cf1f3be44afadfb819
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 %global commitdate  20260606
 
@@ -22,8 +22,8 @@ Requires:       ntsync-autoload
 synse-settings is a personal fork of CachyOS-settings, trimmed for Fedora on AMD
 hardware. It is a collection of drop-in system configuration files: sysctl tuning,
 udev I/O-scheduler and device rules, modprobe options, systemd manager and service
-drop-ins, tmpfiles entries, a NetworkManager DNS snippet, an X11 touchpad profile,
-and PAM audio limits. No support or stability is implied.
+drop-ins, tmpfiles entries, NetworkManager DNS snippet, and PAM audio limits.
+No support or stability is implied.
 
 %prep
 %autosetup -p1 -n %{name}-%{commit}
@@ -41,11 +41,19 @@ cp -a etc usr %{buildroot}/
 %license LICENSE.md
 %doc README.md
 %config(noreplace) %{_sysconfdir}/security/limits.d/*
-%{_prefix}/lib/*
-%dir %{_datadir}/X11
-%{_datadir}/X11/xorg.conf.d
+%{_prefix}/lib/modprobe.d/*
+%{_prefix}/lib/NetworkManager/conf.d/*
+%{_prefix}/lib/sysctl.d/*
+%{_prefix}/lib/systemd/**
+%{_prefix}/lib/tmpfiles.d/*
+%{_prefix}/lib/udev/rules.d/*
 
 %changelog
+* Tue Jun 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260609git79e615e-1
+- Remove X11/Xorg input configuration (Wayland-only system assumption)
+- Drop legacy xorg.conf.d touchpad InputClass rules
+- Clean packaging metadata to reflect Wayland-native setup
+
 * Sat Jun 06 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260606gitbc5d0bc-1
 - Initial package (CachyOS-settings fork @ bc5d0bc)
 - Depend on ntsync-autoload instead of shipping ntsync.conf
