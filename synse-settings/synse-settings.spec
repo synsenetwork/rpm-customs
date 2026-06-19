@@ -1,6 +1,6 @@
-%global commit d110023af6a99fa746de4dac50e47ea5d82a5c60
+%global commit e59165a8881ad747119b2f57a187f832440bbc66
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate 20260610
+%global commitdate 20260619
 
 Name:           synse-settings
 Version:        1.0.%{commitdate}git%{shortcommit}
@@ -51,6 +51,8 @@ cp -a etc usr %{buildroot}/
 %{_prefix}/lib/udev/rules.d/*
 
 %changelog
+* Fri Jun 19 2026 Automated Update <github-actions@github.com> - 1.0.20260619gite59165a-1
+- Update to git commit e59165a
 * Wed Jun 10 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260610gitd110023-1
 - Ship /etc/tuned throughput-performance shadow profile (stop tuned-ppd
   clobbering sysctl.d VM tuning)
