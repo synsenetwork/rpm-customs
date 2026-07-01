@@ -4,7 +4,7 @@
 %global __os_install_post %{nil}
 %global __strip /bin/true
 
-%global claude_version 1.15962.1
+%global claude_version 1.17377.1
 %global electron_ver   40.4.1
 
 Name:           claude-desktop
@@ -250,6 +250,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Wed Jul 01 2026 Automated Update <github-actions@github.com> - 1.17377.1-1
+- Update to Claude Desktop 1.17377.1
 * Sat Jun 27 2026 Automated Update <github-actions@github.com> - 1.15962.1-1
 - Update to Claude Desktop 1.15962.1
 * Thu Jun 25 2026 Automated Update <github-actions@github.com> - 1.15200.0-1
