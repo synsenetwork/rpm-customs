@@ -1,6 +1,6 @@
 Name:           scx-scheds
 Version:        1.1.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        sched_ext schedulers and support utilities
 
 License:        GPL-2.0-only
@@ -25,6 +25,7 @@ BuildRequires:  systemd
 BuildRequires:  bpftool
 BuildRequires:  protobuf-compiler
 BuildRequires:  libseccomp-devel
+BuildRequires:  openssl-devel
 
 Requires:       elfutils-libelf
 Requires:       libseccomp
@@ -77,6 +78,10 @@ find target/release \
 %{_bindir}/*
 
 %changelog
+* Tue Jul 07 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.1.2-2
+- Add openssl-devel BuildRequires: scx v1.1.2 pulls openssl-sys via
+  reqwest -> native-tls when built with --all-features, so the build now
+  needs openssl.pc at compile time (matches CachyOS COPR).
 * Fri Jul 03 2026 Automated Update <github-actions@github.com> - 1.1.2-1
 - Update to version 1.1.2
 * Fri May 15 2026 Automated Update <github-actions@github.com> - 1.1.1-1
