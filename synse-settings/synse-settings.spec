@@ -1,6 +1,6 @@
-%global commit e59165a8881ad747119b2f57a187f832440bbc66
+%global commit 7832be9ec1d02241c92ae4d877c530501a574aa2
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate 20260619
+%global commitdate 20260707
 
 Name:           synse-settings
 Version:        1.0.%{commitdate}git%{shortcommit}
@@ -51,6 +51,8 @@ cp -a etc usr %{buildroot}/
 %{_prefix}/lib/udev/rules.d/*
 
 %changelog
+* Tue Jul 07 2026 Automated Update <github-actions@github.com> - 1.0.20260707git7832be9-1
+- Update to git commit 7832be9
 * Fri Jun 19 2026 Automated Update <github-actions@github.com> - 1.0.20260619gite59165a-1
 - Update to git commit e59165a
 * Wed Jun 10 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260610gitd110023-1
