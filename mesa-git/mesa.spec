@@ -7,9 +7,9 @@
 %define version_string 26.2.0
 %global version_major %(ver=%{version_string}; echo ${ver%.*.*})
 
-%define commit 19a58c4b4f5f83e2a16c768ec1afe2011ee76460
+%define commit 9e24785f81567f074c4923247c4f9d48766b2dbd
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commit_date 20260707.14
+%global commit_date 20260707.22
 %global gitrel .%{commit_date}.%{shortcommit}
 
 %global hw_video_codecs_free vc1dec,av1dec,av1enc,vp9dec
@@ -29,7 +29,7 @@
 Name:           %{package_name}
 Summary:        Mesa 3D Graphics Library, git version
 Version:        %{version_string}
-Release:        0.98%{?gitrel}%{?dist}
+Release:        0.99%{?gitrel}%{?dist}
 
 License:        MIT
 URL:            http://www.mesa3d.org
