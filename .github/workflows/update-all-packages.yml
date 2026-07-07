@@ -403,9 +403,8 @@ jobs:
         id: check_claude_desktop
         run: |
           CURRENT_VERSION=$(grep -oP '^%global claude_version \K\S+' claude-desktop/claude-desktop.spec)
-          LATEST_VERSION=$(curl -fsSL 'https://downloads.claude.ai/releases/win32/arm64/RELEASES' \
-              | grep -oE 'AnthropicClaude-[0-9.]+-full\.nupkg' \
-              | sed -E 's/AnthropicClaude-([0-9.]+)-full\.nupkg/\1/' \
+          LATEST_VERSION=$(curl -fsSL 'https://downloads.claude.ai/claude-desktop/apt/stable/dists/stable/main/binary-amd64/Packages' \
+              | grep -oP '^Version: \K[0-9.]+' \
               | sort -V | tail -1)
           if [ -z "$LATEST_VERSION" ]; then
             echo "Failed to determine latest Claude Desktop version"
@@ -425,7 +424,7 @@ jobs:
           LATEST_VERSION="${{ steps.check_claude_desktop.outputs.latest }}"
           sed -i "s/^%global claude_version .*/%global claude_version $LATEST_VERSION/" claude-desktop/claude-desktop.spec
           CURRENT_DATE=$(date '+%a %b %d %Y')
-          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - $LATEST_VERSION-1"
+          CHANGELOG_ENTRY="* $CURRENT_DATE Automated Update <github-actions@github.com> - 1:$LATEST_VERSION-1"
           sed -i "/^%changelog/a $CHANGELOG_ENTRY\n- Update to Claude Desktop $LATEST_VERSION" claude-desktop/claude-desktop.spec
 
       - name: Commit Claude Desktop changes
