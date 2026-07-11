@@ -3,7 +3,7 @@
 %global __strip /bin/true
 
 %global upstream_version 5.4.0
-%global prerelease       beta.2
+%global prerelease       beta.4
 
 %global appdir /opt/Wootility-Beta
 %global appimage Wootility-%{upstream_version}-%{prerelease}.AppImage
@@ -83,6 +83,8 @@ cp -a squashfs-root/usr/share/icons/. %{buildroot}%{_datadir}/icons/
 %{_datadir}/icons/hicolor/*/apps/%{name}.*
 
 %changelog
+* Sat Jul 11 2026 Automated Update <github-actions@github.com> - 5.4.0~beta.4-1
+- Update to beta 5.4.0-beta.4
 * Thu Jul 09 2026 Automated Update <github-actions@github.com> - 5.4.0~beta.2-1
 - Update to beta 5.4.0-beta.2
 * Thu May 07 2026 Automated Update <github-actions@github.com> - 5.4.0~beta.1-1
