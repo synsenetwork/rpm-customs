@@ -1,5 +1,5 @@
 Name:           scrcpy
-Version:        4.0
+Version:        4.1
 Release:        3%{?dist}
 Summary:        Display and control Android devices over USB or TCP/IP
 
@@ -67,6 +67,8 @@ require Java and the Android SDK in the buildroot.
 %{_mandir}/man1/scrcpy.1*
 
 %changelog
+* Mon Jul 13 2026 Automated Update <github-actions@github.com> - 4.1-1
+- Update to version 4.1
 * Mon Jun 01 2026 Kristián Kekeš <gamerix2006@gmail.com> - 4.0-3
 - Drop -Dcompile_server=false; the top-level meson.build uses that
   option to gate entering subdir('server') at all, which also skipped
