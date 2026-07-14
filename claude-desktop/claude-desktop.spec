@@ -15,6 +15,12 @@
 %global debarch arm64
 %endif
 
+# The .desktop file is named for the app's reverse-DNS id (its basename must
+# match the Wayland app_id / X11 WM_CLASS in StartupWMClass for window
+# grouping). Anthropic renamed it from claude-desktop.desktop at 1.20186.x;
+# the icons and /usr/bin symlink stay claude-desktop.
+%global desktop_file com.anthropic.Claude.desktop
+
 Name:           claude-desktop
 # Epoch 1: the package switched from Anthropic's Windows Squirrel feed
 # (last packaged 1.19367.0) to the official Linux apt channel, whose
@@ -22,7 +28,7 @@ Name:           claude-desktop
 # deb-based build would sort as a downgrade.
 Epoch:          1
 Version:        %{claude_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Claude Desktop for Linux
 License:        LicenseRef-Anthropic
 URL:            https://claude.com/download/
@@ -99,13 +105,13 @@ cp -a usr/* %{buildroot}%{_prefix}/
 # the SUID sandbox when user namespaces are unavailable).
 chmod 4755 %{buildroot}%{_prefix}/lib/%{name}/chrome-sandbox
 
-desktop-file-validate %{buildroot}%{_datadir}/applications/%{name}.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/%{desktop_file}
 
 %files
 # /usr/bin/claude-desktop -> ../lib/claude-desktop/claude-desktop
 %{_bindir}/claude-desktop
 %{_prefix}/lib/%{name}/
-%{_datadir}/applications/%{name}.desktop
+%{_datadir}/applications/%{desktop_file}
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %post
@@ -120,6 +126,12 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Jul 14 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:1.20186.1-2
+- Install the desktop file under its upstream name
+  com.anthropic.Claude.desktop. Anthropic renamed it from
+  claude-desktop.desktop at 1.20186.x (StartupWMClass is now
+  com.anthropic.Claude), which broke the %%install desktop-file-validate
+  and %%files. Icons and the /usr/bin symlink are still claude-desktop.
 * Mon Jul 13 2026 Automated Update <github-actions@github.com> - 1:1.20186.1-1
 - Update to Claude Desktop 1.20186.1
 * Wed Jul 08 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:1.18286.2-1
