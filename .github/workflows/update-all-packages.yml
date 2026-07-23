@@ -113,12 +113,18 @@ jobs:
             echo "Failed to determine latest Wootility beta filename"
             exit 1
           fi
-          # Filename looks like Wootility-5.4.0-beta.0.AppImage; split semver from prerelease tag.
           STRIPPED=${FILENAME#Wootility-}
           STRIPPED=${STRIPPED%.AppImage}
-          LATEST_VERSION=${STRIPPED%%-*}
-          LATEST_PRERELEASE=${STRIPPED#*-}
-          if [ "$LATEST_VERSION" = "$STRIPPED" ] || [ "$LATEST_PRERELEASE" = "$STRIPPED" ]; then
+          if [[ "$STRIPPED" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-([A-Za-z0-9._-]+)$ ]]; then
+            LATEST_VERSION=${BASH_REMATCH[1]}
+            LATEST_PRERELEASE=${BASH_REMATCH[2]}
+          elif [[ "$STRIPPED" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Wootility beta channel currently points to stable build $FILENAME; keeping the current beta"
+            echo "current=$CURRENT_VERSION-$CURRENT_PRERELEASE" >> $GITHUB_OUTPUT
+            echo "latest=$STRIPPED" >> $GITHUB_OUTPUT
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+            exit 0
+          else
             echo "Unexpected Wootility beta filename: $FILENAME"
             exit 1
           fi
