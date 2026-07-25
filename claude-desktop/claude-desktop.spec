@@ -4,7 +4,7 @@
 %global __os_install_post %{nil}
 %global __strip /bin/true
 
-%global claude_version 1.24012.0
+%global claude_version 1.24012.9
 
 # The .deb payload is arch-specific; map the RPM arch to the Debian
 # arch used in the pool filename.
@@ -126,6 +126,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Sat Jul 25 2026 Automated Update <github-actions@github.com> - 1:1.24012.9-1
+- Update to Claude Desktop 1.24012.9
 * Thu Jul 23 2026 Automated Update <github-actions@github.com> - 1:1.24012.0-1
 - Update to Claude Desktop 1.24012.0
 * Tue Jul 14 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:1.20186.1-2
