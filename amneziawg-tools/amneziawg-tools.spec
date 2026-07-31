@@ -1,6 +1,6 @@
-%global commit 61e741780e8465a67a7d7fb6cffe14a8a15d624a
+%global commit d09ecc38425082e472368dd2bf8c4c42d10cae03
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate 20260619
+%global commitdate 20260731
 
 Name:           amneziawg-tools
 Version:        1.0.%{commitdate}git%{shortcommit}
@@ -52,6 +52,8 @@ WITH_BASHCOMPLETION=yes WITH_WGQUICK=yes WITH_SYSTEMDUNITS=yes -C src
 %{_mandir}/man8/awg-quick.8*
 
 %changelog
+* Fri Jul 31 2026 Automated Update <github-actions@github.com> - 1.0.20260731gitd09ecc3-1
+- Update to git commit d09ecc3
 * Fri Jun 19 2026 Automated Update <github-actions@github.com> - 1.0.20260619git61e7417-1
 - Update to git commit 61e7417
 * Thu Apr 30 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.0.20260403git5d6179a-1
