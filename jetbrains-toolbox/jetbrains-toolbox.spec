@@ -2,7 +2,7 @@
 %global appdir /opt/%{name}
 
 Name:           jetbrains-toolbox
-Version:        3.6.3.86383
+Version:        3.6.4.86641
 Release:        1%{?dist}
 Summary:        Manage all your JetBrains projects and tools
 
@@ -48,6 +48,8 @@ ln -s ../../opt/%{name}/%{name} %{buildroot}%{_bindir}/%{name}
 %{_datadir}/pixmaps/%{name}.svg
 
 %changelog
+* Wed Aug 05 2026 Automated Update <github-actions@github.com> - 3.6.4.86641-1
+- Update to version 3.6.4.86641
 * Wed Jul 29 2026 Automated Update <github-actions@github.com> - 3.6.3.86383-1
 - Update to version 3.6.3.86383
 * Thu Jul 23 2026 Automated Update <github-actions@github.com> - 3.6.2.85969-1
