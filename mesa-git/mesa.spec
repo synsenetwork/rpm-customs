@@ -12,6 +12,9 @@
 %global commit_date 20260805.13
 %global gitrel .%{commit_date}.%{shortcommit}
 
+# Mesa's virtio Vulkan driver consumes the separately released Venus protocol.
+%global venus_protocol_commit 027b9aca5c480d02bea6ef1b15406f5fd15cd7d7
+
 %global hw_video_codecs_free vc1dec,av1dec,av1enc,vp9dec
 %global hw_video_codecs_patented ,h264dec,h264enc,h265dec,h265enc
 
@@ -29,13 +32,14 @@
 Name:           %{package_name}
 Summary:        Mesa 3D Graphics Library, git version
 Version:        %{version_string}
-Release:        0.111%{?gitrel}%{?dist}
+Release:        0.112%{?gitrel}%{?dist}
 
 License:        MIT
 URL:            http://www.mesa3d.org
 ExclusiveArch:  %{ix86} x86_64
 
 Source0:        %{build_repo}/-/archive/%{commit}.tar.gz#/mesa-%{commit}.tar.gz
+Source1:        https://gitlab.freedesktop.org/virgl/venus-protocol/-/archive/%{venus_protocol_commit}/venus-protocol-%{venus_protocol_commit}.tar.gz
 
 BuildRequires:  meson >= 1.3.0
 BuildRequires:  cbindgen
@@ -230,6 +234,8 @@ The drivers with support for the Vulkan API.
 %prep
 %setup -q -c
 %autosetup -n mesa-%{commit} -p1
+tar -xzf %{SOURCE1} -C subprojects
+mv subprojects/venus-protocol-%{venus_protocol_commit} subprojects/venus-protocol-1.0
 
 %build
 # ensure standard Rust compiler flags are set
@@ -446,6 +452,10 @@ popd
 %{_datadir}/vulkan/icd.d/virtio_icd.*.json
 
 %changelog
+* Fri Aug 07 2026 Kristián Kekeš <gamerix2006@gmail.com>
+  Vendor Mesa's pinned venus-protocol source so virtio Vulkan builds remain
+  compatible with Meson's offline wrap policy.
+
 * Sun May 03 2026 Kristián Kekeš <gamerix2006@gmail.com>
   Widen the vulkan-drivers %files VkLayer globs from MESA_* to * so
   vendor-prefixed layers (intel-nullhw -> VkLayer_INTEL_nullhw) are
