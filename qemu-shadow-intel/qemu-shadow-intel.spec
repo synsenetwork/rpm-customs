@@ -6,7 +6,7 @@
 
 Name:           qemu-shadow-intel
 Version:        11.0.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Epoch:          3
 Summary:        AutoVirt-patched QEMU replacement for Intel hosts
 
@@ -58,31 +58,25 @@ Requires:       seabios-bin
 Requires:       seavgabios-bin
 
 # Epoch 3 is intentionally higher than Fedora QEMU's epoch 2.  These virtual
-# provides and paired Obsoletes/Conflicts make DNF replace the incompatible
-# split Fedora stack instead of allowing two owners for the system binaries.
+# provides and versioned conflicts let DNF --allowerasing replace the
+# incompatible split Fedora stack without considering the other Shadow vendor
+# variant as another candidate to obsolete the same packages.
 Provides:       qemu = %{epoch}:%{version}-%{release}
 Provides:       qemu-common = %{epoch}:%{version}-%{release}
 Provides:       qemu-img = %{epoch}:%{version}-%{release}
 Provides:       qemu-kvm = %{epoch}:%{version}-%{release}
 Provides:       qemu-kvm-core = %{epoch}:%{version}-%{release}
+Provides:       qemu-pr-helper = %{epoch}:%{version}-%{release}
 Provides:       qemu-system-x86 = %{epoch}:%{version}-%{release}
 Provides:       qemu-system-x86-core = %{epoch}:%{version}-%{release}
 Provides:       qemu-tools = %{epoch}:%{version}-%{release}
-
-Obsoletes:      qemu < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-common < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-img < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-kvm < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-kvm-core < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-system-x86 < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-system-x86-core < %{epoch}:%{version}-%{release}
-Obsoletes:      qemu-tools < %{epoch}:%{version}-%{release}
 
 Conflicts:      qemu < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-common < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-img < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-kvm < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-kvm-core < %{epoch}:%{version}-%{release}
+Conflicts:      qemu-pr-helper < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-system-x86 < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-system-x86-core < %{epoch}:%{version}-%{release}
 Conflicts:      qemu-tools < %{epoch}:%{version}-%{release}
@@ -193,6 +187,10 @@ install -Dm0644 %{SOURCE12} \
 %{_datadir}/%{name}/
 
 %changelog
+* Sat Aug 08 2026 Kristián Kekeš <gamerix2006@gmail.com> - 3:11.0.3-2
+- Replace Fedora QEMU through solver-safe Provides/Conflicts metadata
+- Provide and conflict with Fedora's separate qemu-pr-helper package
+
 * Thu Aug 06 2026 Kristián Kekeš <gamerix2006@gmail.com> - 3:11.0.3-1
 - Build from the pinned Intel branch of synsenetwork/qemu-shadow
 - Carry the AutoVirt QEMU changes from commit dd88bea

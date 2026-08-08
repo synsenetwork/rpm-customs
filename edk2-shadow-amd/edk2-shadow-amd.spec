@@ -9,7 +9,7 @@
 
 Name:           edk2-shadow-amd
 Version:        20260508
-Release:        1%{?dist}
+Release:        2%{?dist}
 Epoch:          1
 Summary:        AutoVirt-patched OVMF replacement for AMD hosts
 
@@ -41,8 +41,6 @@ BuildRequires:  perl(Time::Piece)
 Provides:       bundled(openssl) = %{openssl_version}
 Provides:       edk2-ovmf = %{epoch}:%{version}-%{release}
 Provides:       OVMF = %{epoch}:%{version}-%{release}
-Obsoletes:      edk2-ovmf < %{epoch}:%{version}-%{release}
-Obsoletes:      OVMF < %{epoch}:%{version}-%{release}
 Conflicts:      edk2-ovmf < %{epoch}:%{version}-%{release}
 Conflicts:      OVMF < %{epoch}:%{version}-%{release}
 Conflicts:      edk2-shadow-intel
@@ -134,6 +132,9 @@ virt-fw-vars --input \
 %{_datadir}/qemu/firmware/40-edk2-shadow-amd-x64.json
 
 %changelog
+* Sat Aug 08 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:20260508-2
+- Replace Fedora edk2-ovmf through solver-safe Provides/Conflicts metadata
+
 * Thu Aug 06 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1:20260508-1
 - Build from the pinned AMD branch of synsenetwork/edk2-shadow
 - Carry the AutoVirt EDK2 changes from commit dd88bea

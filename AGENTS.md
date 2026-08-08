@@ -21,11 +21,13 @@ The four `*-shadow-*` packages are mutually exclusive, vendor-matched AutoVirt
 replacements for Fedora's system virtualization stack. `qemu-shadow-amd` and
 `qemu-shadow-intel` are compact KVM-only x86_64 QEMU builds; each requires the
 matching `edk2-shadow-*` OVMF package. They keep custom package names but use a
-higher epoch plus explicit `Provides`/`Obsoletes`/`Conflicts` for Fedora's
+higher epoch plus explicit `Provides`/`Conflicts` for Fedora's
 `qemu`, `qemu-common`, `qemu-img`, `qemu-kvm*`, `qemu-system-x86*`, and
-`edk2-ovmf` packages. This makes `dnf install qemu-shadow-{amd,intel}` replace
-the incompatible Fedora packages while preventing AMD and Intel variants from
-coexisting. QEMU sources come from the `amd` and `intel` branches of
+`edk2-ovmf` packages. Installation uses `dnf --allowerasing` to replace the
+incompatible Fedora packages while preventing AMD and Intel variants from
+coexisting. Do not add matching `Obsoletes` to both variants: DNF will consider
+both packages as replacement candidates and fail on their mutual conflicts.
+QEMU sources come from the `amd` and `intel` branches of
 `synsenetwork/qemu-shadow`, with its pristine `main` branch pinned to the
 matching upstream QEMU release. Each spec fetches an immutable branch commit
 in `%prep` rather than carrying a local QEMU patch. The matching EDK2 sources
