@@ -447,7 +447,7 @@ Version: 10.2.2
 # Upstream v10.2.2 plus the custom hardware identity patch.
 %global commit aba531acf46166b6489ce35070fc67b9a511db04
 
-Release: 3%{?dist}
+Release: 4%{?dist}
 
 Epoch: 2
 License: %{shrink:
@@ -1788,7 +1788,6 @@ mkdir -p %{static_builddir}
   --disable-debug-tcg              \\\
   --disable-dmg                    \\\
   --disable-docs                   \\\
-  --disable-download               \\\
   --disable-dsound                 \\\
   --disable-fdt                    \\\
   --disable-fuse                   \\\
@@ -1931,6 +1930,7 @@ run_configure() {
 %endif
         --with-pkgversion="%{name}-%{version}-%{release}" \
         --with-suffix="%{name}" \
+        --enable-download \
         --firmwarepath="%firmwaredirs" \
         --enable-trace-backends=dtrace \
         --with-coroutine=ucontext \
@@ -3537,6 +3537,9 @@ popd
 
 
 %changelog
+* Sun Aug 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 2:10.2.2-4
+- Allow QEMU to download subprojects missing from GitHub source archives
+
 * Sun Aug 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 2:10.2.2-3
 - Rename the package family to qemu-synse
 - Provide and conflict with each corresponding Fedora qemu package
