@@ -1,9 +1,4 @@
 
-# Provide a way to skip tests via rpmbuild `--without`
-# This makes it easier to skip tests in copr repos, where
-# the qemu test suite is historically flakey
-%bcond_without check
-
 %global libfdt_version 1.6.0
 %global libseccomp_version 2.4.0
 %global libusbx_version 1.0.23
@@ -447,7 +442,7 @@ Version: 10.2.2
 # Upstream v10.2.2 plus the custom hardware identity patch.
 %global commit aba531acf46166b6489ce35070fc67b9a511db04
 
-Release: 5%{?dist}
+Release: 6%{?dist}
 
 Epoch: 2
 License: %{shrink:
@@ -485,21 +480,11 @@ Source26: vhost.conf
 Source27: kvm.conf
 Source30: kvm-s390x.conf
 Source31: kvm-x86.conf
-Source36: README.tests
 Source37: qemu.sysusers
-# Golden ACPI table added by the Synse hardware identity patch. Stored as
-# base64 because the fixture is a binary ACPI table.
-Source38: BGRT.base64
 
-# Skip failing test in copr
-# https://gitlab.com/qemu-project/qemu/-/issues/2541
-Patch: 0001-Disable-9p-local-tests-that-fail-on-copr-aarch64.patch
 # https://lists.nongnu.org/archive/html/qemu-block/2025-01/msg00480.html
 Patch: 0002-nfs-Add-support-for-libnfs-v2-api.patch
 Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
-# Increase test-replication timeout
-# NOT upstream, but see https://gitlab.com/qemu-project/qemu/-/issues/3035
-Patch: 0002-TEMPORARY-increase-test-timeout.patch
 # https://lists.nongnu.org/archive/html/qemu-devel/2026-01/msg01140.html
 Patch: 0001-meson-disable-libatomic-with-GCC-16.patch
 
@@ -568,7 +553,6 @@ BuildRequires: pkgconfig(epoxy)
 BuildRequires: pkgconfig(libdrm)
 BuildRequires: pkgconfig(gbm)
 %endif
-BuildRequires: perl-Test-Harness
 BuildRequires: libslirp-devel
 BuildRequires: libbpf-devel >= 1.0.0
 %if %{have_libblkio}
@@ -626,8 +610,6 @@ BuildRequires: xen-devel
 %endif
 # reading bzip2 compressed dmg images
 BuildRequires: bzip2-devel
-# TLS test suite
-BuildRequires: libtasn1-devel
 %if %{have_libcacard}
 # smartcard device
 BuildRequires: libcacard-devel
@@ -648,8 +630,6 @@ BuildRequires: liburing-devel
 %endif
 # zstd compression support
 BuildRequires: libzstd-devel
-# `hostname` used by test suite
-BuildRequires: hostname
 %if %{have_daxctl}
 # nvdimm dax
 BuildRequires: daxctl-devel
@@ -810,20 +790,6 @@ Summary: qemu-pr-helper utility for %{name}
 %description -n qemu-synse-pr-helper
 This package provides the qemu-pr-helper utility that is required for certain
 SCSI features.
-
-
-%package tests
-%replace_qemu_package tests
-Summary: tests for the %{name} package
-Requires: %{name} = %{evr}
-
-%define testsdir %{_libdir}/%{name}/tests-src
-
-%description tests
-The %{name}-tests rpm contains tests that can be used to verify
-the functionality of the installed %{name} package
-
-Install this package if you want access to qemu-iotests.
 
 
 %if %{have_libblkio}
@@ -1749,11 +1715,6 @@ This package provides the QEMU system emulator for Xtensa boards.
 %prep
 %autosetup -n qemu-%{commit} -S git_am
 
-# The Synse fork adds a BGRT table, so provide matching fixtures for the x86
-# ACPI table tests. All variants fall back to these unqualified fixtures.
-base64 --decode %{SOURCE38} > tests/data/acpi/x86/pc/BGRT
-install -m 0644 tests/data/acpi/x86/pc/BGRT tests/data/acpi/x86/q35/BGRT
-
 %global qemu_kvm_build qemu_kvm_build
 mkdir -p %{qemu_kvm_build}
 %global static_builddir static_builddir
@@ -2265,28 +2226,13 @@ install -m 0644 -t %{buildroot}%{_datadir}/%{name}/tracetool/format scripts/trac
 # Ensure vhost-user directory is present even if built without virgl
 mkdir -p %{buildroot}%{_datadir}/%{name}/vhost-user
 
-# Create new directories and put them all under tests-src
-mkdir -p %{buildroot}%{testsdir}/python
-mkdir -p %{buildroot}%{testsdir}/tests
-mkdir -p %{buildroot}%{testsdir}/tests/qemu-iotests
-mkdir -p %{buildroot}%{testsdir}/scripts/qmp
-
-cp -R %{qemu_kvm_build}/python/qemu %{buildroot}%{testsdir}/python
-cp -R %{qemu_kvm_build}/scripts/qmp/* %{buildroot}%{testsdir}/scripts/qmp
-install -p -m 0755 tests/Makefile.include %{buildroot}%{testsdir}/tests/
-
-# Install qemu-iotests
-cp -R tests/qemu-iotests/* %{buildroot}%{testsdir}/tests/qemu-iotests/
-cp -ur %{qemu_kvm_build}/tests/qemu-iotests/* %{buildroot}%{testsdir}/tests/qemu-iotests/
-
-# Install our custom tests README
-install -p -m 0644 %{_sourcedir}/README.tests %{buildroot}%{testsdir}/README
-
-
 # Do the actual qemu tree install
 pushd %{qemu_kvm_build}
 %make_install
 popd
+
+# qtest accelerators are build-time test artifacts and are not shipped.
+rm -f %{buildroot}%{_libdir}/%{name}/accel-qtest-*.so
 
 
 # We need to make the block device modules and other qemu SO files executable
@@ -2413,82 +2359,6 @@ rm -f \
 %{buildroot}%{_datadir}/%{name}/s390-ccw.img \
 %endif
 
-
-
-%check
-# Disable iotests. RHEL has done this forever, and these
-# tests have been flakey in the past
-export MTESTARGS="--no-suite block"
-
-# Most architectures can use the default timeouts, but in some cases
-# the hardware that's currently available is too slow and we need to
-# allow tests to run for a little bit longer
-%define timeout_multiplier 1
-%ifarch riscv64
-%define timeout_multiplier 3
-%endif
-
-%if %{with check}
-%if !%{tools_only}
-
-pushd %{qemu_kvm_build}
-
-# Quick sanity check, as it'll give easier to debug failures
-# than we see with 'make check'
-./qemu-system-i386 -help
-./qemu-img -help
-
-# Now run the test suites, ordered from simplest (and thus
-# hopefully least likely to fail) to complicated (and thus
-# probably more likely to fail). This also lets us selectively
-# disable just a subset of testing when we have issues with
-# certain build platform architectures
-echo "Testing %{name}-build"
-
-echo "######## unit tests ########"
-%make_build check-unit
-
-echo "######## QAPI schema tests ########"
-%make_build check-qapi-schema
-
-echo "######## DecodeTree tests ########"
-%make_build check-decodetree
-
-echo "######## Soft Float tests ########"
-%make_build check-softfloat
-
-echo "######## QTest tests ########"
-# 2025/02/03: ppc64le hosts often abort in one or more of
-# these tests for unknown reasons. eg
-#
-#    3/606 qemu:qtest+qtest-riscv64 / qtest-riscv64/bios-tables-test ERROR   3.52s   killed by signal 6 SIGABRT
-#  102/606 qemu:qtest+qtest-x86_64 / qtest-x86_64/migration-test     ERROR 108.91s   killed by signal 6 SIGABRT
-#  155/606 qemu:qtest+qtest-aarch64 / qtest-aarch64/qos-test         ERROR  50.14s   killed by signal 6 SIGABRT
-#  593/606 qemu:qtest+qtest-x86_64 / qtest-x86_64/modules-test       ERROR   0.74s   killed by signal 6 SIGABRT
-%ifnarch ppc64le
-%make_build check-qtest TIMEOUT_MULTIPLIER=%{timeout_multiplier}
-%endif
-
-echo "######## Block I/O tests ########"
-%make_build check-block TIMEOUT_MULTIPLIER=%{timeout_multiplier}
-
-echo "######## Functional tests ########"
-# 2025/02/03: ppc64le hosts often fail one or more functional tests
-# for unknown reasons. eg
-#
-#  3/95 qemu:func-quick+func-riscv32 / func-riscv32-riscv_opensbi  ERROR 1.63s   exit status 1
-# 57/95 qemu:func-quick+func-riscv64 / func-riscv64-riscv_opensbi  ERROR 1.75s   exit status 1
-%ifnarch ppc64le
-# 'check-func-quick' instead of 'check-functional' to avoid asset download
-%make_build check-func-quick TIMEOUT_MULTIPLIER=%{timeout_multiplier}
-%endif
-
-popd
-
-# endif !tools_only
-%endif
-# endif with check
-%endif
 
 
 %post -n qemu-synse-guest-agent
@@ -2704,10 +2574,6 @@ popd
 %exclude %{_datadir}/%{name}/qemu-nsis.bmp
 %{_sysusersdir}/qemu.conf
 
-
-%files tests
-%{testsdir}
-%{_libdir}/%{name}/accel-qtest-*.so
 
 %if %{have_libblkio}
 %files block-blkio
@@ -3545,6 +3411,10 @@ popd
 
 
 %changelog
+* Sun Aug 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 2:10.2.2-6
+- Disable the upstream test suite for the custom hardware identity build
+- Remove the tests subpackage and test-only build inputs
+
 * Sun Aug 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 2:10.2.2-5
 - Add golden BGRT fixtures for the Synse ACPI identity patch
 
