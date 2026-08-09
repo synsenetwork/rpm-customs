@@ -447,7 +447,7 @@ Version: 10.2.2
 # Upstream v10.2.2 plus the custom hardware identity patch.
 %global commit aba531acf46166b6489ce35070fc67b9a511db04
 
-Release: 4%{?dist}
+Release: 5%{?dist}
 
 Epoch: 2
 License: %{shrink:
@@ -487,6 +487,9 @@ Source30: kvm-s390x.conf
 Source31: kvm-x86.conf
 Source36: README.tests
 Source37: qemu.sysusers
+# Golden ACPI table added by the Synse hardware identity patch. Stored as
+# base64 because the fixture is a binary ACPI table.
+Source38: BGRT.base64
 
 # Skip failing test in copr
 # https://gitlab.com/qemu-project/qemu/-/issues/2541
@@ -1745,6 +1748,11 @@ This package provides the QEMU system emulator for Xtensa boards.
 
 %prep
 %autosetup -n qemu-%{commit} -S git_am
+
+# The Synse fork adds a BGRT table, so provide matching fixtures for the x86
+# ACPI table tests. All variants fall back to these unqualified fixtures.
+base64 --decode %{SOURCE38} > tests/data/acpi/x86/pc/BGRT
+install -m 0644 tests/data/acpi/x86/pc/BGRT tests/data/acpi/x86/q35/BGRT
 
 %global qemu_kvm_build qemu_kvm_build
 mkdir -p %{qemu_kvm_build}
@@ -3537,6 +3545,9 @@ popd
 
 
 %changelog
+* Sun Aug 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 2:10.2.2-5
+- Add golden BGRT fixtures for the Synse ACPI identity patch
+
 * Sun Aug 09 2026 Kristián Kekeš <gamerix2006@gmail.com> - 2:10.2.2-4
 - Allow QEMU to download subprojects missing from GitHub source archives
 
