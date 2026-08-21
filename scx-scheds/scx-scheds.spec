@@ -1,5 +1,5 @@
 Name:           scx-scheds
-Version:        1.1.2
+Version:        1.1.3
 Release:        2%{?dist}
 Summary:        sched_ext schedulers and support utilities
 
@@ -78,6 +78,8 @@ find target/release \
 %{_bindir}/*
 
 %changelog
+* Fri Aug 21 2026 Automated Update <github-actions@github.com> - 1.1.3-1
+- Update to version 1.1.3
 * Tue Jul 07 2026 Kristián Kekeš <gamerix2006@gmail.com> - 1.1.2-2
 - Add openssl-devel BuildRequires: scx v1.1.2 pulls openssl-sys via
   reqwest -> native-tls when built with --all-features, so the build now
