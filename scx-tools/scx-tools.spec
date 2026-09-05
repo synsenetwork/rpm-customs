@@ -1,5 +1,5 @@
 Name:           scx-tools
-Version:        1.1.2
+Version:        1.1.3
 Release:        1%{?dist}
 Summary:        sched_ext loader (D-Bus service for managing scx schedulers)
 
@@ -58,6 +58,8 @@ find target/release \
 %{_datadir}/scx_loader/config.toml
 
 %changelog
+* Sat Sep 05 2026 Automated Update <github-actions@github.com> - 1.1.3-1
+- Update to version 1.1.3
 * Sun Jul 05 2026 Automated Update <github-actions@github.com> - 1.1.2-1
 - Update to version 1.1.2
 * Tue May 19 2026 Automated Update <github-actions@github.com> - 1.1.1-1
