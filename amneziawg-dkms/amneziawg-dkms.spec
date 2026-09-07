@@ -1,7 +1,7 @@
 %global debug_package %{nil}
-%global commit 3c38e168beb7c60dec41dfe423d41555205a3dac
+%global commit 4569c4c67f3a57414969260cafbbd04694fbaae0
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate 20260829
+%global commitdate 20260907
 
 Name:           amneziawg-dkms
 Version:        1.0.%{commitdate}git%{shortcommit}
@@ -70,6 +70,8 @@ dkms remove -m amneziawg -v %{version} -q --all || :
 %{_usrsrc}/amneziawg-%{version}
 
 %changelog
+* Mon Sep 07 2026 Automated Update <github-actions@github.com> - 1:1.0.20260907git4569c4c-1
+- Update to git commit 4569c4c
 * Sat Aug 29 2026 Automated Update <github-actions@github.com> - 1:1.0.20260829git3c38e16-1
 - Update to git commit 3c38e16
 * Thu Aug 27 2026 Automated Update <github-actions@github.com> - 1:1.0.20260827gitb72bb7a-1
