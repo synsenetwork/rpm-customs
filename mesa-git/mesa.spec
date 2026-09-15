@@ -7,9 +7,9 @@
 %define version_string 26.3.0
 %global version_major %(ver=%{version_string}; echo ${ver%.*.*})
 
-%define commit d852750d66e80580d7141209284a7aebd73c4026
+%define commit 308a082256accee311db146c4c7947e312d20c67
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commit_date 20260913.15
+%global commit_date 20260915.16
 %global gitrel .%{commit_date}.%{shortcommit}
 
 # Mesa's virtio Vulkan driver consumes the separately released Venus protocol.
@@ -32,7 +32,7 @@
 Name:           %{package_name}
 Summary:        Mesa 3D Graphics Library, git version
 Version:        %{version_string}
-Release:        0.132%{?gitrel}%{?dist}
+Release:        0.133%{?gitrel}%{?dist}
 
 License:        MIT
 URL:            http://www.mesa3d.org
