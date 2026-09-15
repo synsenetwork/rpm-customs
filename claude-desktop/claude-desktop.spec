@@ -4,7 +4,7 @@
 %global __os_install_post %{nil}
 %global __strip /bin/true
 
-%global claude_version 1.52386.3
+%global claude_version 1.52386.6
 
 # The .deb payload is arch-specific; map the RPM arch to the Debian
 # arch used in the pool filename.
@@ -126,6 +126,8 @@ if [ $1 -eq 0 ]; then
 fi
 
 %changelog
+* Tue Sep 15 2026 Automated Update <github-actions@github.com> - 1:1.52386.6-1
+- Update to Claude Desktop 1.52386.6
 * Sun Sep 13 2026 Automated Update <github-actions@github.com> - 1:1.52386.3-1
 - Update to Claude Desktop 1.52386.3
 * Fri Sep 11 2026 Automated Update <github-actions@github.com> - 1:1.52386.0-1
