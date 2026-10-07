@@ -1,5 +1,5 @@
 Name:           scrcpy
-Version:        4.1
+Version:        5.0
 Release:        3%{?dist}
 Summary:        Display and control Android devices over USB or TCP/IP
 
@@ -67,6 +67,8 @@ require Java and the Android SDK in the buildroot.
 %{_mandir}/man1/scrcpy.1*
 
 %changelog
+* Wed Oct 07 2026 Automated Update <github-actions@github.com> - 5.0-1
+- Update to version 5.0
 * Mon Jul 13 2026 Automated Update <github-actions@github.com> - 4.1-1
 - Update to version 4.1
 * Mon Jun 01 2026 Kristián Kekeš <gamerix2006@gmail.com> - 4.0-3
